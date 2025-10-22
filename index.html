@@ -1,194 +1,86 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>チュートリアル移動確認</title>
-
-  <!-- OGP：Discordに貼った時のプレビュー -->
-  <meta property="og:title" content="チュートリアルに移動しますか？">
-  <meta property="og:description" content="確認後、自動でチュートリアルページに移動します。">
-  <meta property="og:type" content="website">
-  <meta property="og:image" content="https://your-domain.com/ogp.png">
-  <meta property="og:url" content="https://your-domain.com/tutorial-confirm.html">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>移動確認</title>
   <style>
-    :root {
-      --bg: #0b1020;
-      --card: #121a33;
-      --text: #eaf0ff;
-      --muted: #a8b3cf;
-      --accent: #3b82f6;
-      --ok: #22c55e;
-      --ng: #ef4444;
-    }
-    * { box-sizing: border-box; }
     body {
-      margin: 0; background: linear-gradient(180deg,#0b1020,#0d1428 40%,#0b1020);
-      color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", sans-serif;
-      min-height: 100svh; display: grid; place-items: center; padding: 16px;
+      background-color: #0f172a;
+      color: #fff;
+      font-family: "Segoe UI", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
-    .wrap { width: min(960px, 100%); }
-    .card {
-      background: var(--card); border: 1px solid #1f2a4d; border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.35); overflow: hidden;
+    .container {
+      text-align: center;
+      background: #1e293b;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(255,255,255,0.1);
+      width: 80%;
+      max-width: 600px;
     }
-    .hero {
-      position: relative; aspect-ratio: 16/9; background:#0a0f1f; overflow: hidden;
-    }
-    .slide {
-      position: absolute; inset: 0; opacity: 0; transition: opacity .6s ease;
-      display: grid; place-items: center; background:#000;
-    }
-    .slide.active { opacity: 1; }
-    .slide img { width: 100%; height: 100%; object-fit: cover; }
-    .dots { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); display: flex; gap: 8px; }
-    .dot {
-      width: 10px; height: 10px; border-radius: 999px; background: #6273a6; opacity: .6;
-    }
-    .dot.active { background: #cbd8ff; opacity: 1; }
-
-    .body { padding: 20px 22px 16px; }
-    h1 { margin: 0 0 6px; font-size: clamp(20px, 3.5vw, 26px); }
-    .desc { color: var(--muted); margin: 0 0 14px; }
-    .confirm {
-      display: flex; flex-wrap: wrap; align-items: center; gap: 12px; justify-content: space-between;
-      padding: 12px; border: 1px dashed #2a3761; border-radius: 12px; background: rgba(59,130,246,.08);
-    }
-    .timer { font-weight: 700; color: #cde1ff; }
-    .btns { display: flex; gap: 10px; }
     button {
-      cursor: pointer; border: none; border-radius: 10px; padding: 10px 16px; font-weight: 700;
-      transition: transform .05s ease, opacity .2s ease; color: #fff;
+      font-size: 1rem;
+      padding: 10px 20px;
+      margin: 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
     }
-    button:active { transform: translateY(1px); }
-    .ok { background: var(--ok); }
-    .cancel { background: var(--ng); }
-    .ghost { background: transparent; color: var(--muted); border: 1px solid #2a3761; }
-
-    .foot {
-      padding: 12px 22px 20px; color: var(--muted); font-size: 14px; display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap;
-    }
-    a.safe { color: #a0c6ff; text-decoration: underline; }
-    .small { font-size: 12px; opacity: .85; }
-    @media (max-width: 520px) {
-      .confirm { gap: 8px; }
-      .btns { width: 100%; justify-content: flex-end; }
-    }
+    .yes { background-color: #16a34a; color: white; }
+    .no { background-color: #dc2626; color: white; }
+    .pause { background-color: #334155; color: white; }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <!-- 画像スライド: ここに好きな画像ファイル名を置く -->
-      <div class="hero" id="hero">
-        <div class="slide active"><img src="./welcome-01.png" alt="ゲーム学園ようこそ"></div>
-        <div class="slide"><img src="./headmaster-01.png" alt="学園長紹介1"></div>
-        <div class="slide"><img src="./headmaster-02.png" alt="学園長紹介2"></div>
-        <div class="slide"><img src="./rules-01.png" alt="学園ルール"></div>
-        <div class="dots" id="dots"></div>
-      </div>
-
-      <div class="body">
-        <h1 id="title">チュートリアルページに移動します。よろしいですか？</h1>
-        <p class="desc" id="desc">
-          Discordからのアクセスありがとうございます。下の確認後、<span class="timer"><span id="sec">5</span>秒</span>で自動的にチュートリアルに移動します。
-        </p>
-
-        <div class="confirm">
-          <div>
-            行き先：<span id="destText"></span><br class="small">
-            <span class="small">（※安全のためワンクッションページを挟んでいます）</span>
-          </div>
-          <div class="btns">
-            <button class="ok" id="goBtn">はい、移動する</button>
-            <button class="cancel" id="stopBtn">キャンセル</button>
-            <button class="ghost" id="pauseBtn" aria-pressed="false">一時停止</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="foot">
-        <div>自動で移動しない場合は <a class="safe" id="fallback" target="_blank" rel="noopener">こちらをクリック</a></div>
-        <div class="small">© ゲーム学園</div>
-      </div>
+  <div class="container">
+    <h2>チュートリアルページに移動します。よろしいですか？</h2>
+    <p id="countdown">（20秒後に確認が表示されます）</p>
+    <div id="buttons" style="display:none;">
+      <button class="yes" onclick="go()">はい、移動する</button>
+      <button class="no" onclick="cancel()">キャンセル</button>
+      <button class="pause" onclick="pause()">一時停止</button>
     </div>
   </div>
 
   <script>
-    // --- 設定（クエリで上書き可） ---
-    const q = new URLSearchParams(location.search);
-    const dest = q.get("to") || "https://game.example.com/tutorial";
-    const sec  = Math.max(0, parseInt(q.get("sec") || "5", 10));
-    const title = q.get("title") || "チュートリアルページに移動します。よろしいですか？";
+    const url = "https://game.example.com/tutorial"; // 移動先URL
+    let seconds = 20;
+    let timer;
 
-    // 反映
-    document.getElementById("title").textContent = title;
-    document.getElementById("sec").textContent = sec;
-    document.getElementById("destText").textContent = dest;
-    const fallback = document.getElementById("fallback");
-    fallback.href = dest;
-
-    // スライド（自動で3.5秒ごとに切替）
-    const slides = [...document.querySelectorAll(".slide")];
-    const dotsWrap = document.getElementById("dots");
-    slides.forEach((_, i) => {
-      const d = document.createElement("span");
-      d.className = "dot" + (i===0 ? " active" : "");
-      dotsWrap.appendChild(d);
-    });
-    const dots = [...dotsWrap.children];
-    let idx = 0;
-    setInterval(() => {
-      slides[idx].classList.remove("active");
-      dots[idx].classList.remove("active");
-      idx = (idx + 1) % slides.length;
-      slides[idx].classList.add("active");
-      dots[idx].classList.add("active");
-    }, 5500);
-
-    // カウントダウン & 自動遷移
-    let remain = sec;
-    let paused = false;
-    const secEl = document.getElementById("sec");
-    let timer = setInterval(tick, 10000);
-
-    function tick() {
-      if (paused) return;
-      if (remain <= 0) {
-        go();
-        return;
+    function countdown() {
+      const el = document.getElementById("countdown");
+      if (seconds > 0) {
+        el.textContent = `${seconds} 秒後に確認メッセージを表示します...`;
+        seconds--;
+        timer = setTimeout(countdown, 1000);
+      } else {
+        document.getElementById("buttons").style.display = "block";
+        el.textContent = "以下のボタンから選択してください。";
       }
-      remain--;
-      secEl.textContent = remain;
     }
+
     function go() {
-      // 安全のため location.replace を使用（戻る履歴を汚さない）
-      location.replace(dest);
+      window.location.href = url;
     }
+
     function cancel() {
-      clearInterval(timer);
-      document.querySelector(".desc").textContent = "自動遷移はキャンセルされました。ボタンから手動で移動できます。";
+      alert("移動をキャンセルしました。");
+      document.getElementById("buttons").style.display = "none";
+      document.getElementById("countdown").textContent = "キャンセル済み";
+      clearTimeout(timer);
     }
 
-    document.getElementById("goBtn").addEventListener("click", go);
-    document.getElementById("stopBtn").addEventListener("click", cancel);
-    document.getElementById("pauseBtn").addEventListener("click", (e) => {
-      paused = !paused;
-      e.currentTarget.setAttribute("aria-pressed", String(paused));
-      e.currentTarget.textContent = paused ? "再開" : "一時停止";
-    });
+    function pause() {
+      clearTimeout(timer);
+      alert("カウントダウンを一時停止しました。");
+    }
 
-    // フォールバック：埋め込み/プレビューでJSが走らない環境向けに <noscript> も可
-    //   → Discordのプレビュー上では実行されず、クリックした人だけこのページが開きます
+    countdown();
   </script>
-
-  <!-- JS無効時の案内 -->
-  <noscript>
-    <div style="position:fixed;inset:0;display:grid;place-items:center;background:#0008;color:#fff;font:16px/1.6 system-ui,sans-serif;text-align:center;padding:20px">
-      JavaScriptが無効のため自動で移動できません。<br>
-      <a href="https://game.example.com/tutorial" style="color:#9cf;text-decoration:underline">こちらをクリック</a>して移動してください。
-    </div>
-  </noscript>
 </body>
 </html>
